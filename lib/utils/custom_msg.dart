@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showCustomMsg(
-  BuildContext context,
-  String msg, {
-  Color? bgColor,
-}) {
-  return ScaffoldMessenger.of(context).showSnackBar(
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void showCustomMsg(BuildContext context, String msg, {Color? bgColor}) {
+  scaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(content: Text(msg), backgroundColor: bgColor ?? Colors.grey),
   );
 }

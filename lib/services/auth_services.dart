@@ -12,7 +12,7 @@ class AuthServices {
     required String password,
   }) async {
     try {
-      final String url = "${ApiConstant.baseUrl}/user/signup";
+      final String url = "${ApiConstant.baseUrl}/user/auth/signup";
 
       final response = await http.post(
         Uri.parse(url),
@@ -39,30 +39,33 @@ class AuthServices {
     required String password,
   }) async {
     try {
-      final response = await http
-          .post(
-            Uri.parse("${ApiConstant.baseUrl}/user/login"),
-            headers: {"Content-Type": "application/json"},
-            body: jsonEncode({"email": email, "password": password}),
-          )
-          .timeout(const Duration(seconds: 10));
+      final response = await http.post(
+        Uri.parse("${ApiConstant.baseUrl}/auth/login"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
 
       final data = jsonDecode(response.body);
 
-      if (response.statusCode != 201) {
-        throw Exception(data['message'] ?? "Failed to Login");
+      if (response.statusCode == 200) {
+        await TokenStorage.saveToken(data['token']);
+        await TokenStorage.saveUserId(data['user']['_id']);
+        if (data['user']['name'] != null) {
+          await TokenStorage.saveUserName(data['user']['name']);
+        }
+        if (data['user']['email'] != null) {
+          await TokenStorage.saveUserEmail(data['user']['email']);
+        }
+        return;
       }
 
-      final token = data['token'];
-
-      if (token == null) {
-        throw Exception("Token Empty");
-      }
-      await TokenStorage.saveToken(token);
+      throw Exception(data['message'] ?? "Login failed");
     } on SocketException {
-      throw Exception("No Internet Connection!");
+      throw Exception("No Internet Access");
+    } on FormatException {
+      throw Exception("Invalid Response Format");
     } catch (e) {
-      throw Exception(e.toString());
+      rethrow;
     }
   }
 }

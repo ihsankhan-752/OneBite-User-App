@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:onebite_user_app/constants/app_colors.dart';
 import 'package:onebite_user_app/controllers/auth_controller.dart';
+import 'package:onebite_user_app/controllers/order_controller.dart';
 import 'package:onebite_user_app/screens/auth/create_account_screen.dart';
+import 'package:onebite_user_app/screens/custom_navbar/custom_navbar.dart';
 import 'package:onebite_user_app/utils/custom_msg.dart';
 import 'package:onebite_user_app/widgets/buttons.dart';
 import 'package:onebite_user_app/widgets/logo_widget.dart';
@@ -134,7 +136,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         return;
                       }
 
-                      showCustomMsg(context, "User LoggedIn");
+                      if (authController.userId != null) {
+                        context.read<OrderController>().connectSocket(context, authController.userId!);
+                      }
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => CustomNavbar()),
+                      );
                     },
                   );
                 },

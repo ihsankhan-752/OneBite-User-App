@@ -3,7 +3,7 @@ import 'package:onebite_user_app/constants/app_colors.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String title;
-  final Function() onPressed;
+  final VoidCallback? onPressed;
   const PrimaryButton({
     super.key,
     required this.title,
@@ -31,7 +31,7 @@ class PrimaryButton extends StatelessWidget {
             fontSize: 16,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.3,
-            color: AppColors.primaryBlack,
+            color: AppColors.primaryWhite,
           ),
         ),
       ),
