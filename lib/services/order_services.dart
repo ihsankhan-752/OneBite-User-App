@@ -16,12 +16,14 @@ class OrderServices {
   Future<Map<String, dynamic>> placeOrders({
     required List<String> restaurantIds,
     required String deliveryAddress,
+    required double deliveryLat,
+    required double deliveryLng,
     required String paymentMethod,
   }) async {
     try {
       final token = await TokenStorage.getToken();
       final response = await _client.post(
-        Uri.parse("${ApiConstant.baseUrl}/order"),
+        Uri.parse("${ApiConstant.baseUrl}/orders"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
@@ -29,9 +31,13 @@ class OrderServices {
         body: jsonEncode({
           "restaurantIds": restaurantIds,
           "deliveryAddress": deliveryAddress,
+          "deliveryLat": deliveryLat,
+          "deliveryLng": deliveryLng,
           "paymentMethod": paymentMethod,
         }),
       );
+
+      debugPrint("Place orders response: ${response.body}");
 
       final data = jsonDecode(response.body);
 
@@ -57,7 +63,7 @@ class OrderServices {
     try {
       final token = await TokenStorage.getToken();
       final response = await _client.get(
-        Uri.parse("${ApiConstant.baseUrl}/order"),
+        Uri.parse("${ApiConstant.baseUrl}/orders"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",

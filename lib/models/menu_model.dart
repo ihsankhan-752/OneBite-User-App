@@ -89,8 +89,8 @@ class RestaurantInfo {
     }
 
     return RestaurantInfo(
-      id: json['_id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
       location: loc,
     );
   }

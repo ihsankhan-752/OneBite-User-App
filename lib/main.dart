@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:onebite_user_app/controllers/auth_controller.dart';
 import 'package:onebite_user_app/controllers/banner_controller.dart';
@@ -11,9 +12,9 @@ import 'package:onebite_user_app/core/keys.dart';
 import 'package:onebite_user_app/screens/splash/splash_screen.dart';
 import 'package:onebite_user_app/utils/custom_msg.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'constants/app_colors.dart';
+import 'controllers/review_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FavoriteController()),
         ChangeNotifierProvider(create: (_) => CartController()),
         ChangeNotifierProvider(create: (_) => OrderController()),
+        ChangeNotifierProvider(create: (_) => ReviewController()),
       ],
       child: MaterialApp(
         title: 'OneBite User App',

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:onebite_user_app/screens/custom_navbar/orders/widgets/order_item_tile.dart';
 import 'package:onebite_user_app/screens/custom_navbar/orders/widgets/order_status_badge.dart';
+import 'package:onebite_user_app/widgets/order_map_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../controllers/order_controller.dart';
+import '../../../controllers/review_controller.dart';
 import '../../../models/order_model.dart';
-import 'package:provider/provider.dart';
+import '../../review_screen.dart';
+import '../../../models/review_model.dart' as onebite_review_model;
+import '../../../services/review_services.dart' as onebite_review_service;
 
 class OrderDetailScreen extends StatelessWidget {
   final OrderModel order;
@@ -82,6 +87,13 @@ class OrderDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 16),
+
+          // ===== Delivery Map =====
+          OrderMapWidget(
+            deliveryLat: currentOrder.deliveryLat,
+            deliveryLng: currentOrder.deliveryLng,
           ),
           const SizedBox(height: 16),
 
@@ -192,6 +204,79 @@ class OrderDetailScreen extends StatelessWidget {
               ],
             ),
           ),
+          if (currentOrder.orderStatus == "delivered") ...[
+            const SizedBox(height: 16),
+            FutureBuilder<List<onebite_review_model.ReviewModel>>(
+              future: onebite_review_service.ReviewServices()
+                  .getRestaurantReviews(currentOrder.restaurantId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child: CircularProgressIndicator(color: Colors.grey));
+                }
+
+                // Check if any review has the same orderId
+                final hasReviewed = snapshot.data?.any((r) => r.orderId == currentOrder.id) ?? false;
+                final isLocallyReviewed = context
+                    .watch<ReviewController>()
+                    .reviewedOrderIds
+                    .contains(currentOrder.id);
+
+                if (hasReviewed || isLocallyReviewed) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green.withOpacity(0.5)),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "You have rated this order",
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ReviewScreen(
+                            orderId: currentOrder.id,
+                            restaurantId: currentOrder.restaurantId,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Rate This Order",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
     );

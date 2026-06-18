@@ -24,6 +24,8 @@ class OrderController extends ChangeNotifier {
   Future<void> placeOrders({
     required List<String> restaurantIds,
     required String deliveryAddress,
+    required double deliveryLat,
+    required double deliveryLng,
     required String paymentMethod,
     required BuildContext context,
   }) async {
@@ -35,10 +37,10 @@ class OrderController extends ChangeNotifier {
       final result = await _services.placeOrders(
         restaurantIds: restaurantIds,
         deliveryAddress: deliveryAddress,
+        deliveryLat: deliveryLat,
+        deliveryLng: deliveryLng,
         paymentMethod: paymentMethod,
       );
-
-      if (!context.mounted) return;
 
       if (paymentMethod == "stripe" && result['clientSecret'] != null) {
         await stripePaymentHandler(
@@ -46,6 +48,7 @@ class OrderController extends ChangeNotifier {
           context: context,
         );
       }
+
       _orders.insertAll(0, result['orders']);
     } catch (e) {
       _errorMessage = e.toString().replaceAll("Exception: ", "");
@@ -79,13 +82,15 @@ class OrderController extends ChangeNotifier {
           paymentMethod: _orders[index].paymentMethod,
           paymentStatus: _orders[index].paymentStatus,
           deliveryAddress: _orders[index].deliveryAddress,
+          deliveryLat: _orders[index].deliveryLat,
+          deliveryLng: _orders[index].deliveryLng,
           createdAt: _orders[index].createdAt,
         );
         notifyListeners();
       }
 
-      // Show beautiful dialog box
-      final String messageStr = data['message']?.toString() ?? "Order status changed to $newStatus";
+      final String messageStr =
+          data['message']?.toString() ?? "Order status changed to $newStatus";
       showOrderStatusDialog(
         title: "Order Update",
         message: messageStr,

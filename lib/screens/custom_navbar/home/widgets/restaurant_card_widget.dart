@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:onebite_user_app/constants/app_colors.dart';
 import 'package:onebite_user_app/models/restaurant_model.dart';
+import 'package:onebite_user_app/services/review_services.dart' as onebite_review_service;
 
 class RestaurantCardWidget extends StatelessWidget {
   final RestaurantModel restaurant;
@@ -69,18 +70,76 @@ class RestaurantCardWidget extends StatelessWidget {
 
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Colors.orange, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          "4.5",
-                          style: const TextStyle(color: Colors.white),
+                        FutureBuilder<List<dynamic>>(
+                          future: onebite_review_service.ReviewServices()
+                              .getRestaurantReviews(restaurant.id),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.orange, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    restaurant.averageRating.toStringAsFixed(1),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const SizedBox(
+                                    width: 10,
+                                    height: 10,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.grey,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            
+                            final reviews = snapshot.data ?? [];
+                            final count = reviews.length;
+                            double avgRating = restaurant.averageRating;
+                            
+                            if (count > 0) {
+                              double sum = 0;
+                              for (var r in reviews) {
+                                sum += r.rating;
+                              }
+                              avgRating = sum / count;
+                            }
+
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.star, color: Colors.orange, size: 16),
+                                const SizedBox(width: 4),
+                                Text(
+                                  avgRating.toStringAsFixed(1),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "($count Reviews)",
+                                  style: const TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         const SizedBox(width: 10),
-                        Text(
-                          "• Fast Food",
-                          style: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 12,
+                        Expanded(
+                          child: Text(
+                            "• ${restaurant.cuisineDisplay.isNotEmpty ? restaurant.cuisineDisplay : "Fast Food"}",
+                            style: TextStyle(
+                              color: Colors.grey.shade400,
+                              fontSize: 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

@@ -34,6 +34,8 @@ class OrderModel {
   final String paymentMethod;
   final String paymentStatus;
   final String deliveryAddress;
+  final double deliveryLat;
+  final double deliveryLng;
   final DateTime createdAt;
 
   OrderModel({
@@ -46,10 +48,21 @@ class OrderModel {
     required this.paymentMethod,
     required this.paymentStatus,
     required this.deliveryAddress,
+    required this.deliveryLat,
+    required this.deliveryLng,
     required this.createdAt,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
+    // deliveryLocation.coordinates = [lng, lat]
+    final coordinates = json['deliveryLocation']?['coordinates'] as List?;
+    final lng = coordinates != null && coordinates.length > 0
+        ? (coordinates[0] as num).toDouble()
+        : 0.0;
+    final lat = coordinates != null && coordinates.length > 1
+        ? (coordinates[1] as num).toDouble()
+        : 0.0;
+
     return OrderModel(
       id: json['_id'] ?? '',
       restaurantId: json['restaurantId'] ?? '',
@@ -62,6 +75,8 @@ class OrderModel {
       paymentMethod: json['paymentMethod'] ?? 'cash',
       paymentStatus: json['paymentStatus'] ?? 'pending',
       deliveryAddress: json['deliveryAddress'] ?? '',
+      deliveryLat: lat,
+      deliveryLng: lng,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
   }

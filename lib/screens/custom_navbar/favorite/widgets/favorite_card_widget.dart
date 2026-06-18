@@ -12,49 +12,129 @@ class FavoriteCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.sizeOf(context).height * 0.25,
-      margin: const EdgeInsets.only(bottom: 10, right: 16, left: 16),
-      padding: const EdgeInsets.all(12),
+      height: 220,
+      margin: const EdgeInsets.only(bottom: 20, right: 16, left: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF2A2A2A)),
-        image: DecorationImage(
-          image: NetworkImage(menu.image),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            AppColors.primaryBlack.withValues(alpha: 0.6),
-            BlendMode.srcATop,
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: FavoriteWidget(menu: menu),
-          ),
-          Spacer(),
-
-          Text(
-            menu.restaurantId?.name ?? 'Restaurant',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            menu.name,
-            style: TextStyle(
-              color: AppColors.primaryWhite,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
+        image: DecorationImage(
+          image: NetworkImage(
+            menu.image.isNotEmpty ? menu.image : 'https://via.placeholder.com/400',
+          ),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withValues(alpha: 0.1),
+              Colors.black.withValues(alpha: 0.3),
+              Colors.black.withValues(alpha: 0.8),
+              Colors.black.withValues(alpha: 0.95),
+            ],
+            stops: const [0.0, 0.4, 0.8, 1.0],
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.4),
+                  shape: BoxShape.circle,
+                ),
+                child: FavoriteWidget(menu: menu),
+              ),
+            ),
+            const Spacer(),
+            if (menu.category.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  menu.category.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            Text(
+              menu.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.storefront, color: Colors.white70, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          menu.restaurantId?.name ?? 'Restaurant',
+                          style: TextStyle(
+                            color: Colors.grey.shade300,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  child: Text(
+                    'RS ${menu.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
